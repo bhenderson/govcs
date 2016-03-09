@@ -10,7 +10,7 @@ import (
 
 var (
 	VCS_TYPE = "git"
-	VCS_VERS = "568562dcff327c595f7a08c21388abf881cd8c6c"
+	VCS_VERS = "ee0442a69fceb7563e89bf84bf253c8d532b128f"
 	VCS_INFO = "git@github.com/bhenderson/govcs.git"
 )
 
