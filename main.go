@@ -1,11 +1,19 @@
 // govcs auto generates consts based on current VCS data.
+//
+// The current recommended way of doing this is with build flags, but I want to
+// commit the information so that `go get` gets the information.
+//
+// add `go:generate govcs` to your project
 
 package main
 
 import (
+	"flag"
+	"io"
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"text/template"
 )
 
@@ -21,10 +29,14 @@ var (
 )
 `))
 
-var packageName = "main"
+var (
+	packageName = flag.String("package", "main", "package name")
+	output      = flag.String("out", "vcs.go", "output file name (- for stdout)")
+)
 
 func main() {
 	log.SetFlags(0)
+	flag.Parse()
 
 	vcs := LookupVCS()
 
@@ -32,7 +44,20 @@ func main() {
 		log.Fatal("unknown vcs")
 	}
 
-	tmpl.Execute(os.Stdout, vcs)
+	tmpl.Execute(outputFile(), vcs)
+}
+
+func outputFile() io.Writer {
+	if *output == "-" || *output == "" {
+		return os.Stdout
+	}
+
+	f, err := os.Create(*output)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return f
 }
 
 var allVCSFuncs = [...]VCSFunc{
@@ -43,6 +68,8 @@ type VCSFunc func(*VCS) bool
 
 func LookupVCS() *VCS {
 	var vcs VCS
+
+	vcs.Package = *packageName
 
 	for _, f := range allVCSFuncs {
 		if f(&vcs) {
@@ -67,10 +94,10 @@ func Git(v *VCS) bool {
 	v.Type = "git"
 
 	d, _ := exec.Command("git", "rev-parse", "HEAD").Output()
-	v.Vers = string(d)
+	v.Vers = strings.TrimSpace(string(d))
 
-	d, _ = exec.Command("git", "remote", "-v", "show", "-n", "origin").Output()
-	v.Info = string(d)
+	d, _ = exec.Command("git", "config", "remote.origin.url").Output()
+	v.Info = strings.TrimSpace(string(d))
 
 	return true
 }
