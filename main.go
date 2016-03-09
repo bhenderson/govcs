@@ -1,11 +1,18 @@
-// govcs auto generates consts based on current VCS data.
+// govcs auto generates vars based on current VCS data.
 //
 // The current recommended way of doing this is with build flags, but I want to
 // commit the information so that `go get` gets the information.
 //
-// add `go:generate govcs` to your project
-
+// TODOs
+// 	* allow to specify a custom template
+// 	* add more VC systems
+// 	* auto generate flags (if we auto generate flags, do we leave it up to the pkg to parse flags?)
 package main
+
+//go:generate govcs
+
+// BUG(bh) you have to commit the file every time, so the version info will
+// never match
 
 import (
 	"flag"
