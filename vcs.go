@@ -2,8 +2,24 @@
 
 package main
 
+import (
+	"flag"
+	"fmt"
+	"os"
+)
+
 var (
 	VCS_TYPE = "git"
-	VCS_VERS = "bfec58328fd73c16b0c732c2417b517559b02811"
+	VCS_VERS = "568562dcff327c595f7a08c21388abf881cd8c6c"
 	VCS_INFO = "git@github.com/bhenderson/govcs.git"
 )
+
+func init() {
+	flag.Usage = Usage
+}
+
+func Usage() {
+	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+	flag.PrintDefaults()
+	fmt.Fprintf(os.Stderr, "\n%s Version: %s\n%s\n", VCS_TYPE, VCS_VERS, VCS_INFO)
+}

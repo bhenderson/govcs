@@ -6,10 +6,9 @@
 // TODOs
 // 	* allow to specify a custom template
 // 	* add more VC systems
-// 	* auto generate flags (if we auto generate flags, do we leave it up to the pkg to parse flags?)
 package main
 
-//go:generate govcs
+//go:generate go run main.go
 
 // BUG(bh) you have to commit the file every time, so the version info will
 // never match
@@ -29,11 +28,27 @@ var tmpl = template.Must(template.New("tmpl").Parse(
 
 package {{.Package}}
 
+import (
+	"flag"
+	"fmt"
+	"os"
+)
+
 var (
 	VCS_TYPE = {{.Type | printf "%#v" }}
 	VCS_VERS = {{.Vers | printf "%#v" }}
 	VCS_INFO = {{.Info | printf "%#v" }}
 )
+
+func init() {
+	flag.Usage = Usage
+}
+
+func Usage() {
+	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+	flag.PrintDefaults()
+	fmt.Fprintf(os.Stderr, "\n%s Version: %s\n%s\n", VCS_TYPE, VCS_VERS, VCS_INFO)
+}
 `))
 
 var (
